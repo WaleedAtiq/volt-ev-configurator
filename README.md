@@ -15,8 +15,13 @@ npm run dev
 ```
 Other scripts: `npm run build` (production build), `npm run typecheck`, `npm run lint`.
 
-## Deploy to Vercel
-Push to GitHub → vercel.com → Add New Project → import repo → Deploy. No settings needed.
+## Deploy (Vercel)
+Live at **https://volt-ev-configurator.vercel.app**. The code is in the private GitHub repo
+`WaleedAtiq/volt-ev-configurator`, and the Vercel project is connected to it: **every push to `main`
+redeploys the site automatically** (other branches get their own preview link).
+```bash
+git add -A && git commit -m "Describe the change" && git push
+```
 
 ## How it works (the 60-second version for a client call)
 - **One fixed 3D canvas behind the page.** The HTML sections scroll over it; the *camera* orbits the
