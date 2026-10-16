@@ -1,0 +1,179 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Tailwind v4 turns each of these into utility classes:
+ *   --color-accent → bg-accent, text-accent, border-accent…
+ *   --breakpoint-desktop → the `desktop:` prefix (861px and up)
+ * Same structure as ECLIPSE; VOLT's accent is an electric lime + cyan.
+ */
+@theme {
+  --color-bg: #07080b;
+  --color-bg-2: #0d0f14;
+  --color-panel: #10131a;
+  --color-ink: #eef1f6;
+  --color-muted: #8d94a5;
+  --color-line: rgb(255 255 255 / 0.09);
+  --color-accent: #c8ff3d;
+  --color-accent-2: #3dd9ff;
+
+  /* Single breakpoint: below 861px = mobile layout */
+  --breakpoint-desktop: 53.8125rem;
+}
+
+/* Fonts come from next/font (app/layout.tsx), which exposes them as CSS variables.
+   "inline" makes Tailwind use the variable itself rather than its value at build time. */
+@theme inline {
+  --font-sans: var(--font-body), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-heading), var(--font-body), sans-serif;
+}
+
+html {
+  background: var(--color-bg);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+@layer components {
+  /* Every page section: at least one screen tall (the 3D scroll timing relies on this).
+     Mobile: the top ~half of the screen is reserved for the car (padding-top),
+     and the content sits below it. Desktop: content is centered beside the car. */
+  .section {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: flex-end;
+    min-height: 100svh;
+    max-width: 1240px;
+    margin-inline: auto;
+    padding: 50svh 22px 56px;
+  }
+  @media (min-width: 861px) {
+    .section {
+      align-items: center;
+      padding: 120px 32px;
+    }
+  }
+
+  /* Scroll-story chapters (components/sections/Chapter.tsx): 1.7 screens tall,
+     with the text pinned ("sticky") for the whole chapter. The camera arrives
+     during the first part of the scroll, then HOLDS while you read, so moments
+     like sitting in the driver's seat don't flash past. Plain CSS, no JS pinning. */
+  .chapter {
+    position: relative;
+    z-index: 10;
+    min-height: 170svh;
+  }
+  .chapter-inner {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: flex-end;
+    height: 100svh;
+    max-width: 1240px;
+    margin-inline: auto;
+    padding: 50svh 22px 56px;
+  }
+  @media (min-width: 861px) {
+    .chapter-inner {
+      align-items: center;
+      padding: 72px 32px 0;
+    }
+  }
+
+  /* Static car image for devices that can't run the 3D (SceneLoader adds .no-3d to <html>). */
+  .car-poster {
+    display: none;
+  }
+  .no-3d .car-poster {
+    display: block;
+  }
+  .no-3d .loading-badge {
+    display: none;
+  }
+
+  .eyebrow {
+    margin-bottom: 18px;
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .heading {
+    font-family: var(--font-display);
+    font-size: clamp(30px, 5vw, 54px);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    margin-bottom: 18px;
+  }
+
+  .lead {
+    max-width: 560px;
+    color: var(--color-muted);
+    font-size: clamp(15px, 2vw, 17px);
+  }
+
+  /* Small uppercase label above a group of controls */
+  .label {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 28px;
+    border-radius: 40px;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+    color: var(--color-bg);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    box-shadow: 0 10px 40px -12px var(--color-accent);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 48px -12px var(--color-accent);
+  }
+
+  .btn-outline {
+    padding: 9px 18px;
+    border: 1px solid var(--color-accent);
+    border-radius: 40px;
+    color: var(--color-accent);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: background 0.25s, color 0.25s;
+  }
+  .btn-outline:hover {
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+
+  /* Frosted-glass card: the 3D scene shows through, blurred, behind the controls */
+  .glass {
+    border: 1px solid var(--color-line);
+    border-radius: 22px;
+    background: rgb(13 15 20 / 0.62);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+}

@@ -1,0 +1,6 @@
+# Files Vercel doesn't need to build the site (keeps uploads small).
+# The compressed model that ships is public/models/*.glb; these are the raw sources.
+models-src
+.claude
+.next
+node_modules
