@@ -45,7 +45,3 @@ next-env.d.ts
 
 # local tool settings (preview server config)
 /.claude/
-
-# Local AI-assistant notes and settings (kept on this machine, not in the repo)
-CLAUDE.md
-.claude/
