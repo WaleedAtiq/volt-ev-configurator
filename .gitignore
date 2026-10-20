@@ -44,4 +44,3 @@ next-env.d.ts
 /models-src/
 
 # local tool settings (preview server config)
-/.claude/
