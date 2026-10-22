@@ -92,6 +92,22 @@ body {
     }
   }
 
+  /* Small fade + rise, replayed whenever an element is re-created (SectionProgress label) */
+  .fade-up {
+    animation: fade-up 0.45s ease-out both;
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fade-up {
+      animation: none;
+    }
+  }
+
   /* Static car image for devices that can't run the 3D (SceneLoader adds .no-3d to <html>). */
   .car-poster {
     display: none;

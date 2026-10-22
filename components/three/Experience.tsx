@@ -43,7 +43,12 @@ export default function Experience() {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
+    // Fades in once the shaders are compiled (`compiled`): a smoother entrance than
+    // popping in, and it hides the first frame or two while the glow effect warms up.
+    <div
+      className={`pointer-events-none fixed inset-0 z-0 transition-opacity duration-1000 ${compiled ? "opacity-100" : "opacity-0"}`}
+      aria-hidden="true"
+    >
       <Canvas
         dpr={[1, maxDpr]}
         frameloop={compiled ? "always" : "never"}

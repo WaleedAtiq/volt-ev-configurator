@@ -10,9 +10,11 @@ const SECTION_IDS = SECTIONS.map((s) => s.id);
 
 /*
  * Section scroll progress indicator.
- *   Desktop: a vertical rail on the right, with one dot per section. The line
- *            fills as you scroll, and clicking a dot glides to that section
- *            (Lenis handles the smooth scroll for #anchor links).
+ *   Desktop: a small chapter indicator in the bottom-right corner: the current
+ *            chapter's number + name, a thin progress line, and a ↓ button that
+ *            glides to the next chapter (Lenis smooth-scrolls #anchor links).
+ *            On the hero it reads "Scroll to explore", which doubles as the
+ *            scroll cue.
  *   Mobile:  a thin gradient bar along the top edge.
  *
  * Performance follows the same rule as the 3D car: things that change every
@@ -24,18 +26,19 @@ const SECTION_IDS = SECTIONS.map((s) => s.id);
  * In Tailwind v4, `scale-x-0` uses the separate CSS `scale` property, which
  * would multiply with the transform we set from JS and keep the bar at 0 forever.
  */
+const last = SECTION_IDS.length - 1;
+
 export default function SectionProgress() {
   const [active, setActive] = useState(0);
-  const railFill = useRef<HTMLDivElement>(null);
+  const lineFill = useRef<HTMLDivElement>(null);
   const topBar = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
-    const last = SECTION_IDS.length - 1;
 
     const setFill = (value: number) => {
       const v = Math.min(1, Math.max(0, value));
-      if (railFill.current) railFill.current.style.transform = `scaleY(${v})`;
+      if (lineFill.current) lineFill.current.style.transform = `scaleX(${v})`;
       if (topBar.current) topBar.current.style.transform = `scaleX(${v})`;
     };
 
@@ -52,8 +55,8 @@ export default function SectionProgress() {
       })
     );
 
-    // The fill is measured in sections, not pixels, so the line reaches each
-    // dot exactly when its section arrives (sections have different heights).
+    // The fill is measured in sections, not pixels, so each section gets an
+    // equal share of the line, however tall it is.
     // Each section's progress runs 0 → 1, one after another, so their SUM is
     // always "current section index + progress through it". We calculate each
     // one from the scroll position and the section's start/end pixel values
@@ -76,43 +79,38 @@ export default function SectionProgress() {
         <div ref={topBar} className="h-full origin-left bg-gradient-to-r from-accent to-accent-2 [transform:scaleX(0)]" />
       </div>
 
-      {/* Desktop: vertical rail on the right */}
-      <nav aria-label="Page sections" className="fixed right-5 top-1/2 z-40 hidden -translate-y-1/2 desktop:block">
-        <div className="relative flex flex-col gap-7">
-          {/* Track + fill, running through the centers of the dots */}
-          <div className="absolute bottom-2 right-[4px] top-2 w-px bg-white/10" aria-hidden="true">
-            <div ref={railFill} className="h-full w-full origin-top bg-accent [transform:scaleY(0)]" />
+      {/* Desktop: chapter indicator, bottom-right */}
+      <nav aria-label="Page progress" className="fixed bottom-6 right-7 z-40 hidden items-center gap-4 desktop:flex">
+        <div className="text-right">
+          {/* key={active}: React re-creates this line when the chapter changes, which replays the fade-in */}
+          <div key={active} className="fade-up text-[11px] uppercase tracking-[0.22em]">
+            {active === 0 ? (
+              <span className="text-muted">Scroll to explore</span>
+            ) : (
+              <>
+                <span className="text-accent">{String(active).padStart(2, "0")}</span>
+                <span className="text-muted"> / {String(last).padStart(2, "0")}</span>
+                <span className="ml-2 text-ink">{SECTIONS[active].label}</span>
+              </>
+            )}
           </div>
-
-          {SECTION_IDS.map((id, i) => {
-            const isActive = i === active;
-            return (
-              <a
-                key={id}
-                href={`#${id}`}
-                aria-label={SECTIONS[i].label}
-                aria-current={isActive ? "true" : undefined}
-                className="group relative flex items-center justify-end gap-3"
-              >
-                {/* Label: shown on hover/focus; the active one stays visible on wide screens */}
-                <span
-                  className={`whitespace-nowrap text-[11px] uppercase tracking-[0.2em] opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 ${
-                    isActive ? "text-ink min-[1360px]:opacity-100" : "text-muted"
-                  }`}
-                >
-                  {/* Numbered from 00 so they match the section eyebrows ("01 — Design"…) */}
-                  <span className="text-accent">{String(i).padStart(2, "0")}</span> {SECTIONS[i].label}
-                </span>
-                {/* Dot: filled once reached, enlarged + glowing when active */}
-                <span
-                  className={`relative z-10 block size-[9px] rounded-full border transition-all duration-300 ${
-                    i <= active ? "border-accent bg-accent" : "border-white/30 bg-bg"
-                  } ${isActive ? "scale-150 shadow-[0_0_12px_var(--color-accent)]" : "group-hover:border-white/70"}`}
-                />
-              </a>
-            );
-          })}
+          {/* Whole-page progress line */}
+          <div className="ml-auto mt-2 h-px w-36 bg-white/15" aria-hidden="true">
+            <div ref={lineFill} className="h-full origin-left bg-accent [transform:scaleX(0)]" />
+          </div>
         </div>
+        {/* Next chapter (hidden on the last one) */}
+        {active < last && (
+          <a
+            href={`#${SECTIONS[active + 1].id}`}
+            aria-label={`Next: ${SECTIONS[active + 1].label}`}
+            className="grid size-10 place-items-center rounded-full border border-line bg-bg/60 text-ink backdrop-blur transition-colors hover:border-accent hover:text-accent"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <path d="M12 5v14M6 13l6 6 6-6" />
+            </svg>
+          </a>
+        )}
       </nav>
     </>
   );
